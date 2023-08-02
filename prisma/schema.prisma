@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id  String  @id @default(auto()) @map("_id") @db.ObjectId
+  name  String
+  phoneNumber  String
+  email String  @unique
+  password  String
+  avatar  String?
+  skills  String?
+  rating  String?
+  role  Int
+  position  Int[]
+  teamId  String?
+  tournamentIds  String[]
+  is_verifyed  Boolean
+  createdAt  DateTime  @default(now()) 
+  updatedAt  DateTime  @updatedAt
+}
+
+model Team {
+  id  String @id @default(auto()) @map("_id") @db.ObjectId
+  name  String
+  description  String?
+  galleryImages  String[]
+  logo  String?
+  matchIds  String[]
+  createdAt  DateTime @default(now()) 
+  updatedAt  DateTime @updatedAt
+}
+
+model Match {
+  id  String @id @default(auto()) @map("_id") @db.ObjectId
+  tournamentId  String
+  matchDate  DateTime
+  teamIds  String[]
+  homeTeamId  String
+  awayTeamId  String
+  type Int
+  result String[]
+}
+
+model Tournament {
+  id  String  @id @default(auto()) @map("_id") @db.ObjectId
+  name   String
+  startDate  DateTime
+  endDate  DateTime
+  status  Int
+}
+
+model OtpCode {
+  id  String  @id @default(auto()) @map("_id") @db.ObjectId
+  otp  String
+  expireIn DateTime
+  userId  String
+}
+
+model Gallery {
+  id String  @id @default(auto()) @map("_id") @db.ObjectId
+  imageLink  String
+  resourceType Int
+  resourceId  String
+}
