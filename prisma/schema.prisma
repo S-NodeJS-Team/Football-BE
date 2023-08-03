@@ -13,17 +13,17 @@ datasource db {
 model User {
   id  String  @id @default(auto()) @map("_id") @db.ObjectId
   name  String
-  phoneNumber  String
+  phoneNumber  String? @unique
   email String  @unique
   password  String
   avatar  String?
   skills  String?
   rating  String?
-  role  Int
+  role  Int?
   position  Int[]
   teamId  String?
   tournamentIds  String[]
-  is_verifyed  Boolean
+  is_verified  Boolean @default(false)
   createdAt  DateTime  @default(now()) 
   updatedAt  DateTime  @updatedAt
 }
