@@ -3,7 +3,8 @@ import {
   IsNotEmpty,
   IsString,
   IsInt,
-  IsBoolean
+  IsBoolean,
+  IsOptional
 } from 'class-validator';
 
 export class AuthDto {
@@ -17,32 +18,40 @@ export class AuthDto {
 
   @IsString()
   name: string;
-
+  
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   phoneNumber: string;
 
   @IsString()
+  @IsOptional()
   avatar: string;
 
   @IsString()
+  @IsOptional()
   skills: string;
 
   @IsString()
+  @IsOptional()
   rating: string;
 
   @IsInt()
+  @IsOptional()
   role: number;
 
   @IsString()
+  @IsOptional()
   position: Int32Array;
 
   @IsString()
+  @IsOptional()
   teamId: string;
 
   @IsString()
+  @IsOptional()
   tournamentIds: object;
 
   @IsBoolean()
+  @IsOptional()
   isVerified: Boolean;
 }

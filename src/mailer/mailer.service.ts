@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
-import mailerConfig from 'src/config/mailer';
 import * as nodemailer from 'nodemailer';
-import { join } from 'path';
+import mailerConfig from 'src/config/mailer';
 
 @Injectable()
 export class MailerService {
@@ -36,7 +35,6 @@ export class MailerService {
       },
     });
 
-    // const content = 'test send mail';
     const mailOptions = {
       to: user.email,
       subject: 'Welcome to Football site! Confirm your Email',

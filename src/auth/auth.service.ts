@@ -1,6 +1,5 @@
-import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpStatus, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma } from '@prisma/client';
 import * as argon from 'argon2';
 import { JWT_CONST } from 'src/common/constant';
 import { MailerService } from 'src/mailer/mailer.service';
@@ -18,73 +17,123 @@ export class AuthService {
     const user = await this.prisma.user.findFirst({
       where: {
         email: dto.email,
+        is_verified: true,
       },
     });
 
     if (!user) {
-      return {
-        status: HttpStatus.FORBIDDEN,
-        message: 'Email is not exist',
-        access_token: '',
-      };
+      throw new ForbiddenException('Email is not exist');
+    }
+
+    if (!user.is_verified) {
+      throw new ForbiddenException('Your account is not verified');
     }
 
     const pwdMatches = await argon.verify(user.password, dto.password);
 
     if (!pwdMatches) {
-      return {
-        status: HttpStatus.FORBIDDEN,
-        message: 'Your password was wrong',
-        access_token: '',
-      };
+      throw new ForbiddenException('Your password was wrong');
     }
 
-    return this.signToken(user.id, user.email);
+    return await this.signToken(user.id, user.email);
   }
 
   async signUp(dto: AuthDto) {
     const pwdHash = await argon.hash(dto.password);
+    const randomNumber = Math.floor(1000 + Math.random() * 9000).toString();
     try {
-      const user = await this.prisma.user.create({
-        data: {
-          email: dto.email,
-          password: pwdHash,
-          name: dto.name,
-        },
+      const checkUserExist = await this.prisma.user.findUnique({
+        where: {
+          email: dto.email
+        }
       });
 
-      const randomNumber = Math.floor(1000 + Math.random() * 9000).toString();
-      const tokenPayload = {
-        sub: user.id,
-        randomNumber,
-      };
-      const verifyToken = await this.jwt.signAsync(tokenPayload, {
-        secret: JWT_CONST.secret,
-        expiresIn: JWT_CONST.expired,
-      });
+      if (!checkUserExist) {
+        const user = await this.prisma.user.create({
+          data: {
+            email: dto.email,
+            password: pwdHash,
+            name: dto.name,
+          },
+        });
 
-      const verifyLink = await this.prisma.verifyLink.create({
-        data: {
-          userId: user.id,
-          verifyToken: verifyToken,
-        },
-      });
+        const tokenPayload = {
+          sub: user.id,
+          randomNumber,
+        };
+        const verifyToken = await this.jwt.signAsync(tokenPayload, {
+          secret: JWT_CONST.secret,
+          expiresIn: JWT_CONST.expired,
+        });
+  
+        await this.prisma.verifyLink.create({
+          data: {
+            userId: user.id,
+            verifyToken: verifyToken,
+          },
+        });
 
-      await this.mailer.sendMailVerification(user, verifyToken);
+        await this.mailer.sendMailVerification(user, verifyToken);
 
-      return {
-        message: 'Verify account link is sent to your email',
-        data: user,
-      };
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException(
-            'There is a unique constraint violation, a new user cannot be created with this email',
-          );
+        return {
+          message: 'Verify account link is sent to your email',
+          data: user,
+        };
+      } else {
+        const verifyLink = await this.prisma.verifyLink.findUnique({
+          where: {userId: checkUserExist.id}
+        });
+
+        if (verifyLink) {
+          try{
+            await this.jwt.verify(verifyLink.verifyToken, {
+              secret: JWT_CONST.secret,
+              ignoreExpiration: false,
+            });
+
+            return {
+              code: HttpStatus.OK,
+              message: 'Your account has been registered, please check mail to verify account'
+            }
+          } catch (error) {
+            const tokenPayload = {
+              sub: verifyLink.userId,
+              randomNumber,
+            };
+            const verifyToken = await this.jwt.signAsync(tokenPayload, {
+              secret: JWT_CONST.secret,
+              expiresIn: JWT_CONST.expired,
+            });
+
+            await this.prisma.verifyLink.update({
+              data: {
+                verifyToken: verifyToken,
+              },
+              where : {
+                id: verifyLink.id,
+              }
+            });
+
+            await this.mailer.sendMailVerification(checkUserExist, verifyToken);
+
+            return {
+              code: HttpStatus.OK,
+              message: 'Your account not verified, please check mail to verify account'
+            }
+          }
         }
       }
-      throw error;
+      console.log(checkUserExist);
+    } catch (error) {
+      // if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      //   console.log(error);
+      //   if (error.code === 'P2002') {
+      //     throw new ForbiddenException(
+      //       'There is a unique constraint violation, a new user cannot be created with this email',
+      //     );
+      //   }
+      // }
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -102,8 +151,6 @@ export class AuthService {
       expiresIn: JWT_CONST.expired,
     });
 
-    const status: Number = HttpStatus.OK;
-
     return {
       status: HttpStatus.OK,
       message: 'Login successfully',
@@ -113,11 +160,10 @@ export class AuthService {
 
   async confirmEmailVerification(token: string) {
     const decodedJwtAccessToken = this.jwt.decode(token);
-    const expiredLink = decodedJwtAccessToken['exp'];
     const userId = decodedJwtAccessToken['sub'];
 
     try {
-      const checkToken = await this.jwt.verify(token, {
+      await this.jwt.verify(token, {
         secret: JWT_CONST.secret,
         ignoreExpiration: false,
       });
@@ -127,8 +173,8 @@ export class AuthService {
           id: userId,
         },
         data: {
-          is_verified: true
-        }
+          is_verified: true,
+        },
       });
 
       await this.prisma.verifyLink.update({
@@ -136,19 +182,20 @@ export class AuthService {
           userId: userId,
         },
         data: {
-          verifyToken: null
-        }
+          verifyToken: null,
+        },
       });
 
       return {
         code: HttpStatus.OK,
-        message: 'User verify successfully'
-      }
-    } catch (error) {
-      return {
-        code: error === 'jwt expired' ? HttpStatus.UNAUTHORIZED : HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error.message,
+        message: 'User verify successfully',
       };
+    } catch (error) {
+      if (error === 'jwt expired') {
+        throw new UnauthorizedException('Your link activation expired');
+      } else {
+        throw new InternalServerErrorException(error.message)
+      }
     }
   }
 }
