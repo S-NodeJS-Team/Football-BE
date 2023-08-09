@@ -71,3 +71,9 @@ model Gallery {
   resourceType Int
   resourceId  String
 }
+
+model VerifyLink {
+  id String  @id @default(auto()) @map("_id") @db.ObjectId
+  verifyToken String
+  userId String @unique
+}

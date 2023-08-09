@@ -1,6 +1,7 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -15,5 +16,12 @@ export class AuthController {
   @Post('sign-in')
   signIn(@Body() dto: AuthDto) {
     return this.authService.signIn(dto);
+  }
+  
+  @Get('verify-account')
+  confirmEmail(@Req() req: Request) {
+    const token = req.query.token.toString();
+    // console.log(token);
+    return this.authService.confirmEmailVerification(token);
   }
 }
