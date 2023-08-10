@@ -35,9 +35,9 @@ export class AuthService {
   }
 
   async signUp(dto: AuthDto) {
-    const pwdHash = await argon.hash(dto.password);
-    const randomNumber = Math.floor(1000 + Math.random() * 9000).toString();
     try {
+      const pwdHash = await argon.hash(dto.password);
+      const randomNumber = Math.floor(1000 + Math.random() * 9000).toString();
       const checkUserExist = await this.prisma.user.findUnique({
         where: {
           email: dto.email
@@ -75,7 +75,9 @@ export class AuthService {
           message: 'Verify account link is sent to your email',
           data: user,
         };
-      } else {
+      } 
+      
+      if (checkUserExist && !checkUserExist.is_verified) {
         const verifyLink = await this.prisma.verifyLink.findUnique({
           where: {userId: checkUserExist.id}
         });
@@ -118,17 +120,13 @@ export class AuthService {
             }
           }
         }
+      } else {
+        return {
+          code: HttpStatus.OK,
+          message: 'Your account has been verified'
+        }
       }
-      console.log(checkUserExist);
     } catch (error) {
-      // if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      //   console.log(error);
-      //   if (error.code === 'P2002') {
-      //     throw new ForbiddenException(
-      //       'There is a unique constraint violation, a new user cannot be created with this email',
-      //     );
-      //   }
-      // }
       throw new InternalServerErrorException(error.message);
     }
   }

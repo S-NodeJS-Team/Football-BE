@@ -21,7 +21,6 @@ export class AuthController {
   @Get('verify-account')
   confirmEmail(@Req() req: Request) {
     const token = req.query.token.toString();
-    // console.log(token);
     return this.authService.confirmEmailVerification(token);
   }
 }
