@@ -53,5 +53,5 @@ export class AuthDto {
 
   @IsBoolean()
   @IsOptional()
-  isVerified: Boolean;
+  isVerified: boolean;
 }
