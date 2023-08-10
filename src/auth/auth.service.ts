@@ -171,13 +171,10 @@ export class AuthService {
         },
       });
 
-      await this.prisma.verifyLink.update({
+      await this.prisma.verifyLink.delete({
         where: {
           userId: userId,
-        },
-        data: {
-          verifyToken: null,
-        },
+        }
       });
 
       return {
