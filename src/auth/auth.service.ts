@@ -25,10 +25,6 @@ export class AuthService {
       throw new ForbiddenException('Email is not exist');
     }
 
-    if (!user.is_verified) {
-      throw new ForbiddenException('Your account is not verified');
-    }
-
     const pwdMatches = await argon.verify(user.password, dto.password);
 
     if (!pwdMatches) {
