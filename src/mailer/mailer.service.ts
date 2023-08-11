@@ -9,6 +9,11 @@ export class MailerService {
   async sendMailVerification(user: User, token: string) {
     const feHost = process.env.FE_HOST;
     const url = `${feHost}/auth/verify-account?token=${token}`;
+    console.log(
+      '🚀 ~ file: mailer.service.ts:13 ~ MailerService ~ sendMailVerification ~ url:',
+      url,
+    );
+
     const myOAuth2Client = new OAuth2Client(
       mailerConfig.GOOGLE_MAILER_CLIENT_ID,
       mailerConfig.GOOGLE_MAILER_CLIENT_SECRET,
