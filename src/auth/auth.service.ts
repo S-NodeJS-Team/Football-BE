@@ -181,7 +181,6 @@ export class AuthService {
         } else {
           const verifyToken = await this.createVerifyLink(user, tokenPayload);
           await this.mailer.sendMailVerification(user, verifyToken, endPoint);
-  
           return {
             code: HttpStatus.OK,
             message: AUTH_MSG.mailCheckMsg.forgotAccount,
