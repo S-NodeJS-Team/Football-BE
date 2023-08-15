@@ -84,6 +84,7 @@ export class AuthService {
         return {
           code: HttpStatus.OK,
           message: AUTH_MSG.mailCheckMsg.registeredAccount,
+          data: user
         };
       } else {
         if (!checkUserExist.is_verified) {
