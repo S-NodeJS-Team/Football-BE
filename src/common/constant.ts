@@ -17,7 +17,9 @@ export const AUTH_MSG = {
     resendAccountVerify: 'User is not verified, sign up again to resend mail verification',
     urlExpired: 'Your link activation expired',
     accountVerifySuccess: 'Account verify successfully',
-    accountVerified: 'Your account has been verified'
+    accountVerified: 'Your account has been verified',
+    passwordChangeSuccess: 'Your password has been changed',
+    invalidToken: 'Invalid token'
 }
 
 export const END_POINT = {

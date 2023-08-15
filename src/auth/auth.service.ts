@@ -159,35 +159,39 @@ export class AuthService {
 
   async forgotPassword(email: string) {
     const endPoint = END_POINT.resetPassword;
-    const user = await this.prisma.user.findUnique({
-      where: {email: email}
-    });
-
-    if(user) {
-      if (!user.is_verified) {
-        throw new ForbiddenException(AUTH_MSG.accountNotVerified);
-      }
-
-      const tokenPayload = {sub: user.email};
-      const verifyLink = await this.prisma.verifyLink.findUnique({
-        where: {
-          userId: user.id
-        }
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {email: email}
       });
-
-      if (verifyLink) {
-        await this.updateVerifyLink(user, tokenPayload, verifyLink, endPoint);
+  
+      if(user) {
+        if (!user.is_verified) {
+          throw new ForbiddenException(AUTH_MSG.accountNotVerified);
+        }
+  
+        const tokenPayload = {sub: user.email};
+        const verifyLink = await this.prisma.verifyLink.findUnique({
+          where: {
+            userId: user.id
+          }
+        });
+  
+        if (verifyLink) {
+          await this.updateVerifyLink(user, tokenPayload, verifyLink, endPoint);
+        } else {
+          const verifyToken = await this.createVerifyLink(user, tokenPayload);
+          await this.mailer.sendMailVerification(user, verifyToken, endPoint);
+  
+          return {
+            code: HttpStatus.OK,
+            message: AUTH_MSG.mailCheckMsg.forgotAccount,
+          };
+        }
       } else {
-        const verifyToken = await this.createVerifyLink(user, tokenPayload);
-        await this.mailer.sendMailVerification(user, verifyToken, endPoint);
-
-        return {
-          code: HttpStatus.OK,
-          message: AUTH_MSG.mailCheckMsg.forgotAccount,
-        };
+        throw new ForbiddenException(AUTH_MSG.accountNotRegistered);
       }
-    } else {
-      throw new ForbiddenException(AUTH_MSG.accountNotRegistered);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message)
     }
   }
 
@@ -250,30 +254,42 @@ export class AuthService {
     }
   }
 
-  async changePassword(dto: SignInDto) {
+  async resetPassword(newPass: string, token: string) {
     try {
-      const user = await this.prisma.user.findUnique({
-        where : {
-          email: dto.email
-        }
+      const validToken = await this.prisma.verifyLink.findFirst({
+        where : { verifyToken: token }
       });
 
-      if (user) {
-        const newPass = await argon.hash(dto.password);
-        await this.prisma.user.update({
-          data: {
-            password: newPass
-          },
-          where: {
-            id : user.id
-          }
-        });
-      } else {
-        throw new ForbiddenException(AUTH_MSG.accountNotRegistered);
-      }
+      if (!validToken) { throw new ForbiddenException(AUTH_MSG.invalidToken)}
+
+      const decodedJwtAccessToken = this.jwt.decode(token);
+      const email = decodedJwtAccessToken['sub'];
+
+      await this.jwt.verify(token, {
+        secret: JWT_CONST.secret,
+        ignoreExpiration: false,
+      });
+
+      const newPassHash = await argon.hash(newPass);
+      await this.prisma.user.update({
+        data: { password: newPassHash },
+        where: { email : email }
+      });
+
+      await this.prisma.verifyLink.deleteMany({
+        where: { verifyToken: token }
+      });
+
+      return {
+        code: HttpStatus.OK,
+        message: AUTH_MSG.passwordChangeSuccess,
+      };
     } catch (error) {
-      throw new InternalServerErrorException(error.message);
+      if (error === 'jwt expired') {
+        throw new UnauthorizedException(AUTH_MSG.urlExpired);
+      } else {
+        throw new InternalServerErrorException(error.message);
+      }
     }
-    
   }
 }
