@@ -6,9 +6,9 @@ import mailerConfig from 'src/config/mailer';
 
 @Injectable()
 export class MailerService {
-  async sendMailVerification(user: User, token: string) {
+  async sendMailVerification(user: User, token: string, endPoint: string) {
     const feHost = process.env.FE_HOST;
-    const url = `${feHost}/auth/verify-account?token=${token}`;
+    const url = `${feHost + endPoint}?token=${token}`;
     console.log(
       '🚀 ~ file: mailer.service.ts:13 ~ MailerService ~ sendMailVerification ~ url:',
       url,
@@ -40,10 +40,18 @@ export class MailerService {
       },
     });
 
+    let subject = 'Welcome to Football site! Confirm your Email';
+    let html = `Hello ${user.name}, welcome to football site. Click link here to verify email ${url}`;
+
+    if (endPoint === '/auth/reset-password') {
+      subject = 'Welcome to Football site! Reset your Email';
+      html = `Hello ${user.name}, welcome to football site. Click link here to reset your password account ${url}`;
+    }
+
     const mailOptions = {
       to: user.email,
-      subject: 'Welcome to Football site! Confirm your Email',
-      html: `Hello ${user.name}, welcome to football site. Click link here to verify email ${url}`,
+      subject: subject,
+      html: html,
     };
 
     await transport.sendMail(mailOptions);

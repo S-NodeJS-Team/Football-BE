@@ -24,4 +24,15 @@ export class AuthController {
     const token = req.query.token.toString();
     return this.authService.confirmEmailVerification(token);
   }
+
+  @Post('forgot-password')
+  forgotPassword(@Req() req: Request) {
+    const email = req.body.email.toString();
+    return this.authService.forgotPassword(email);
+  }
+
+  @Post('change-password')
+  changePassword(@Body() dto: SignInDto) {
+    return this.authService.changePassword(dto);
+  }
 }
