@@ -92,7 +92,7 @@ export class AuthService {
           const verifyLink = await this.prisma.verifyLink.findUnique({
             where: { userId: checkUserExist.id },
           });
-          await this.updateVerifyLink(checkUserExist, tokenPayload, verifyLink, endPoint);
+          return await this.updateVerifyLink(checkUserExist, tokenPayload, verifyLink, endPoint);
         } else {
           return {
             code: HttpStatus.OK,
@@ -177,7 +177,7 @@ export class AuthService {
         });
   
         if (verifyLink) {
-          await this.updateVerifyLink(user, tokenPayload, verifyLink, endPoint);
+          return await this.updateVerifyLink(user, tokenPayload, verifyLink, endPoint);
         } else {
           const verifyToken = await this.createVerifyLink(user, tokenPayload);
           await this.mailer.sendMailVerification(user, verifyToken, endPoint);
