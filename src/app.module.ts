@@ -11,7 +11,7 @@ import { UserModule } from './user/user.module';
     }),
     AuthModule,
     PrismaModule,
-    UserModule
-  ]
+    UserModule,
+  ],
 })
 export class AppModule {}

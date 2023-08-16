@@ -1,4 +1,11 @@
-import { Controller, Get, UseGuards, Post, Patch, HttpStatus, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Patch,
+  HttpStatus,
+  Body,
+} from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import { User } from '@prisma/client';
@@ -10,12 +17,12 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Post('get-user')
+  @Get('get-user')
   getUser(@GetUser() user: User) {
     return {
       code: HttpStatus.OK,
-      data: [user]
-    }
+      data: { user },
+    };
   }
 
   @Patch('update-user')
@@ -23,4 +30,3 @@ export class UserController {
     return this.userService.updateUser(user, dto);
   }
 }
-
