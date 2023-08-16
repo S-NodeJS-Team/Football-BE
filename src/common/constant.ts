@@ -1,6 +1,6 @@
 export const JWT_CONST = {
     secret: 'tynguyen',
-    expired: '15m'
+    expired: '3600m'
 };
 
 export const AUTH_MSG = {
@@ -20,6 +20,10 @@ export const AUTH_MSG = {
     accountVerified: 'Your account has been verified',
     passwordChangeSuccess: 'Your password has been changed',
     invalidToken: 'Invalid token'
+}
+
+export const USER_MSG = {
+    updateUserSuccess: 'Update user successfully'
 }
 
 export const END_POINT = {
