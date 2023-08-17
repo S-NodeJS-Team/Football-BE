@@ -1,4 +1,5 @@
 import { IsString, IsOptional } from 'class-validator';
+import { IUserSkill } from '../interface/userSkill.interface';
 
 export class updateUserDto {
   @IsString()
@@ -13,9 +14,8 @@ export class updateUserDto {
   @IsOptional()
   avatar: string;
 
-  @IsString()
   @IsOptional()
-  skills: string;
+  skills: IUserSkill[];
 
   @IsString()
   @IsOptional()
