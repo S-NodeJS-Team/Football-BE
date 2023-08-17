@@ -1,4 +1,13 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Req, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Get,
+  Req,
+  Patch,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import { Request } from 'express';
@@ -18,7 +27,7 @@ export class AuthController {
   signIn(@Body() dto: SignInDto) {
     return this.authService.signIn(dto);
   }
-  
+
   @Get('verify-account')
   confirmEmail(@Req() req: Request) {
     const token = req.query.token.toString();

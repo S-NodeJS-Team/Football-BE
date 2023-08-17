@@ -11,69 +11,75 @@ datasource db {
 }
 
 model User {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  name  String
-  phoneNumber  String? @unique
-  email String  @unique
-  password  String
-  avatar  String?
-  skills  String?
-  rating  String?
-  role  Int?
-  position  Int[]
-  teamId  String?
-  tournamentIds  String[]
-  is_verified  Boolean @default(false)
-  createdAt  DateTime  @default(now()) 
-  updatedAt  DateTime  @updatedAt
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  phoneNumber   String?  @unique
+  email         String   @unique
+  password      String
+  avatar        String?
+  skills        Skill[]
+  rating        String?
+  role          Int?
+  position      Int[]
+  teamId        String?
+  tournamentIds String[]
+  is_verified   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+type Skill {
+  subject  String
+  point    Int
+  fullMark Int
 }
 
 model Team {
-  id  String @id @default(auto()) @map("_id") @db.ObjectId
-  name  String
-  description  String?
-  galleryImages  String[]
-  logo  String?
-  matchIds  String[]
-  createdAt  DateTime @default(now()) 
-  updatedAt  DateTime @updatedAt
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String?
+  galleryImages String[]
+  logo          String?
+  matchIds      String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Match {
-  id  String @id @default(auto()) @map("_id") @db.ObjectId
-  tournamentId  String
-  matchDate  DateTime
-  teamIds  String[]
-  homeTeamId  String
-  awayTeamId  String
-  type Int
-  result String[]
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  tournamentId String
+  matchDate    DateTime
+  teamIds      String[]
+  homeTeamId   String
+  awayTeamId   String
+  type         Int
+  result       String[]
 }
 
 model Tournament {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  name   String
-  startDate  DateTime
-  endDate  DateTime
-  status  Int
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  status    Int
 }
 
 model OtpCode {
-  id  String  @id @default(auto()) @map("_id") @db.ObjectId
-  otp  String
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  otp      String
   expireIn DateTime
-  userId  String
+  userId   String
 }
 
 model Gallery {
-  id String  @id @default(auto()) @map("_id") @db.ObjectId
-  imageLink  String
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  imageLink    String
   resourceType Int
-  resourceId  String
+  resourceId   String
 }
 
 model VerifyLink {
-  id String  @id @default(auto()) @map("_id") @db.ObjectId
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
   verifyToken String
-  userId String @unique
+  userId      String @unique
 }

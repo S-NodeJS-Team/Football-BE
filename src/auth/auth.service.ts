@@ -84,15 +84,20 @@ export class AuthService {
         return {
           code: HttpStatus.OK,
           message: AUTH_MSG.mailCheckMsg.registeredAccount,
-          data: user
+          data: user,
         };
       } else {
         if (!checkUserExist.is_verified) {
-          const tokenPayload = {sub: checkUserExist.id, randomNumber};
+          const tokenPayload = { sub: checkUserExist.id, randomNumber };
           const verifyLink = await this.prisma.verifyLink.findUnique({
             where: { userId: checkUserExist.id },
           });
-          return await this.updateVerifyLink(checkUserExist, tokenPayload, verifyLink, endPoint);
+          return await this.updateVerifyLink(
+            checkUserExist,
+            tokenPayload,
+            verifyLink,
+            endPoint,
+          );
         } else {
           return {
             code: HttpStatus.OK,
@@ -161,23 +166,28 @@ export class AuthService {
     const endPoint = END_POINT.resetPassword;
     try {
       const user = await this.prisma.user.findUnique({
-        where: {email: email}
+        where: { email: email },
       });
-  
-      if(user) {
+
+      if (user) {
         if (!user.is_verified) {
           throw new ForbiddenException(AUTH_MSG.accountNotVerified);
         }
-  
-        const tokenPayload = {sub: user.email};
+
+        const tokenPayload = { sub: user.email };
         const verifyLink = await this.prisma.verifyLink.findUnique({
           where: {
-            userId: user.id
-          }
+            userId: user.id,
+          },
         });
-  
+
         if (verifyLink) {
-          return await this.updateVerifyLink(user, tokenPayload, verifyLink, endPoint);
+          return await this.updateVerifyLink(
+            user,
+            tokenPayload,
+            verifyLink,
+            endPoint,
+          );
         } else {
           const verifyToken = await this.createVerifyLink(user, tokenPayload);
           await this.mailer.sendMailVerification(user, verifyToken, endPoint);
@@ -190,7 +200,7 @@ export class AuthService {
         throw new ForbiddenException(AUTH_MSG.accountNotRegistered);
       }
     } catch (error) {
-      throw new InternalServerErrorException(error.message)
+      throw new InternalServerErrorException(error.message);
     }
   }
 
@@ -204,16 +214,21 @@ export class AuthService {
       data: {
         userId: user.id,
         verifyToken: verifyToken,
-      }
+      },
     });
 
     return verifyToken;
   }
 
-  async updateVerifyLink(user: User, payload: any, verifyLink: VerifyLink, endPoint: string) {
+  async updateVerifyLink(
+    user: User,
+    payload: any,
+    verifyLink: VerifyLink,
+    endPoint: string,
+  ) {
     let urlMsgAvailable = AUTH_MSG.urlMsgAvailable.registeredAccount;
     let mailCheckMsg = AUTH_MSG.mailCheckMsg.registeredAccount;
-    
+
     if (endPoint === END_POINT.resetPassword) {
       urlMsgAvailable = AUTH_MSG.urlMsgAvailable.forgotAccount;
       mailCheckMsg = AUTH_MSG.mailCheckMsg.forgotAccount;
@@ -248,7 +263,7 @@ export class AuthService {
 
       return {
         code: HttpStatus.OK,
-        message: mailCheckMsg
+        message: mailCheckMsg,
       };
     }
   }
@@ -256,10 +271,12 @@ export class AuthService {
   async resetPassword(newPass: string, token: string) {
     try {
       const validToken = await this.prisma.verifyLink.findFirst({
-        where : { verifyToken: token }
+        where: { verifyToken: token },
       });
 
-      if (!validToken) { throw new ForbiddenException(AUTH_MSG.invalidToken)}
+      if (!validToken) {
+        throw new ForbiddenException(AUTH_MSG.invalidToken);
+      }
 
       const decodedJwtAccessToken = this.jwt.decode(token);
       const email = decodedJwtAccessToken['sub'];
@@ -272,11 +289,11 @@ export class AuthService {
       const newPassHash = await argon.hash(newPass);
       await this.prisma.user.update({
         data: { password: newPassHash },
-        where: { email : email }
+        where: { email: email },
       });
 
       await this.prisma.verifyLink.deleteMany({
-        where: { verifyToken: token }
+        where: { verifyToken: token },
       });
 
       return {

@@ -4,7 +4,7 @@ import {
   IsString,
   IsInt,
   IsBoolean,
-  IsOptional
+  IsOptional,
 } from 'class-validator';
 
 export class AuthDto {
@@ -18,7 +18,7 @@ export class AuthDto {
 
   @IsString()
   name: string;
-  
+
   @IsString()
   @IsOptional()
   phoneNumber: string;

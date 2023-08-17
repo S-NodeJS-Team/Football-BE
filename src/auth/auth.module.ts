@@ -7,11 +7,7 @@ import { JwtStrategy } from './strategy';
 import { MailerModule } from 'src/mailer/mailer.module';
 
 @Module({
-  imports: [
-    PrismaModule,
-    JwtModule.register({}),
-    MailerModule
-  ],
+  imports: [PrismaModule, JwtModule.register({}), MailerModule],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
 })
