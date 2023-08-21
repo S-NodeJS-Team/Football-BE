@@ -20,7 +20,7 @@ model User {
   skills        Skill[]
   rating        String?
   role          Int?
-  position      Int[]
+  position      String[]
   teamId        String?
   tournamentIds String[]
   is_verified   Boolean  @default(false)
