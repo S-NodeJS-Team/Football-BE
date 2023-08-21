@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsArray } from 'class-validator';
 import { IUserSkill } from '../interface/userSkill.interface';
 
 export class updateUserDto {
@@ -20,4 +20,8 @@ export class updateUserDto {
   @IsString()
   @IsOptional()
   password: string;
+
+  @IsArray()
+  @IsOptional()
+  position: string[];
 }
