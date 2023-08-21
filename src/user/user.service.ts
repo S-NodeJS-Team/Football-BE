@@ -8,6 +8,8 @@ import { updateUserDto } from './dto/updateUser.dto';
 import { USER_MSG } from 'src/common/constant';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
+import { IQueryObject } from 'src/common/interface';
+import { createQueryObject } from 'src/common/utils/paginate-document.util';
 
 @Injectable({})
 export class UserService {
@@ -31,6 +33,39 @@ export class UserService {
         message: USER_MSG.updateUserSuccess,
         data: {
           user: newUser,
+        },
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getPlayers(queryObj: IQueryObject) {
+    try {
+      const { fields, queryObject, queryOptions, sort } =
+        createQueryObject(queryObj);
+      const condition = {
+        ...queryObject,
+        is_verified: true,
+      };
+
+      const { skip, take } = queryOptions;
+      const players = await this.prisma.user.findMany({
+        orderBy: sort,
+        skip,
+        take,
+        where: condition,
+        select: fields,
+      });
+      const countDocuments = await this.prisma.user.count({
+        where: condition,
+      });
+
+      return {
+        code: HttpStatus.OK,
+        data: {
+          players,
+          count: countDocuments,
         },
       };
     } catch (error) {
