@@ -1,9 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  IsNotEmpty,
-  IsArray,
-} from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty, IsArray } from 'class-validator';
 
 export class CreateTeamDto {
   @IsNotEmpty()
@@ -21,12 +16,4 @@ export class CreateTeamDto {
   @IsOptional()
   @IsString()
   logo: string;
-
-  @IsOptional()
-  @IsArray()
-  matchIds: string[];
-
-  @IsString()
-  @IsOptional()
-  slug: string;
 }

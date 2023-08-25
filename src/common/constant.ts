@@ -34,7 +34,7 @@ export const TEAM_MSG = {
   notFoundTeam: 'Your team id not found',
   addTeamSuccess: 'Your team has been added',
   updateTeamSuccess: 'Your team has been updated',
-  getTeamSuccess: 'Get team successfully'
+  getTeamSuccess: 'Get team successfully',
 };
 
 export const END_POINT = {

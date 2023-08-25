@@ -13,7 +13,7 @@ import { TeamModule } from './team/team.module';
     AuthModule,
     PrismaModule,
     UserModule,
-    TeamModule
+    TeamModule,
   ],
 })
 export class AppModule {}

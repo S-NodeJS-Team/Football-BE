@@ -1,4 +1,12 @@
-import { Body, Controller, Patch, Post, UseGuards, Get, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Patch,
+  Post,
+  UseGuards,
+  Get,
+  Param,
+} from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guard';
 import { TeamService } from './team.service';
 import { CreateTeamDto } from './dto/createTeam.dto';
@@ -14,9 +22,9 @@ export class TeamController {
     return this.teamService.createTeam(dto);
   }
 
-  @Patch('update-team')
-  updateTeam(@Body() dto: updateTeamDto) {
-    return this.teamService.updateTeam(dto);
+  @Patch(':teamSlug')
+  updateTeam(@Param() params, @Body() dto: updateTeamDto) {
+    return this.teamService.updateTeam(params.teamSlug, dto);
   }
 
   @Patch('add-member')
