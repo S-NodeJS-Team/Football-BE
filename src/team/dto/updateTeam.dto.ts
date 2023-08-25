@@ -2,13 +2,12 @@ import {
   IsString,
   IsOptional,
   IsNotEmpty,
+  IsArray,
 } from 'class-validator';
 
-export class TeamDto {
-  @IsOptional()
-  id: string;
 
-  @IsNotEmpty()
+export class updateTeamDto {
+  @IsOptional()
   @IsString()
   name: string;
 
@@ -17,6 +16,7 @@ export class TeamDto {
   description: string;
 
   @IsOptional()
+  @IsString({ each: true })
   galleryImages: string[];
 
   @IsOptional()
@@ -24,5 +24,10 @@ export class TeamDto {
   logo: string;
 
   @IsOptional()
+  @IsArray()
   matchIds: string[];
+
+  @IsString()
+  @IsNotEmpty()
+  slug: string;
 }
