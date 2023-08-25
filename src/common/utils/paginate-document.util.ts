@@ -1,6 +1,6 @@
-import { IQueryObject } from '../interface';
+import { IUserQuery } from 'src/user/interface/user-query.interface';
 
-export const createQueryObject = (queryObj: IQueryObject) => {
+export const createQueryObject = (queryObj: IUserQuery) => {
   let newQueryObj = { ...queryObj };
   const excludedFields: string[] = ['page', 'sort', 'take', 'fields'];
   let sort = [];
@@ -23,6 +23,12 @@ export const createQueryObject = (queryObj: IQueryObject) => {
 
   if (queryObj.fields) {
     fields = (queryObj.fields as string).split(',');
+  }
+
+  if (queryObj.name) {
+    newQueryObj.name = {
+      contains: queryObj.name,
+    };
   }
 
   const page = (+queryObj.page + 1) * 1 || 1;
