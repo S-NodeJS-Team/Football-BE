@@ -6,13 +6,19 @@ import {
   HttpStatus,
   Body,
   Query,
+  Post,
+  Param,
 } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/auth/decorator';
 import { User } from '@prisma/client';
 import { updateUserDto } from './dto/updateUser.dto';
 import { UserService } from './user.service';
-import { IQueryObject } from 'src/common/interface';
+import {
+  IUserFilter,
+  IUserParams,
+  IUserQuery,
+} from './interface/user-query.interface';
 
 @UseGuards(JwtGuard)
 @Controller('user')
@@ -26,14 +32,18 @@ export class UserController {
       data: { user },
     };
   }
-
   @Patch('update-user')
   updateUser(@GetUser() user: User, @Body() dto: updateUserDto) {
     return this.userService.updateUser(user, dto);
   }
 
-  @Get('get-players')
-  getPlayers(@Query() queryObj: IQueryObject) {
-    return this.userService.getPlayers(queryObj);
+  @Post('get-players')
+  getPlayers(@Query() queryObj: IUserQuery, @Body() filterObj: IUserFilter) {
+    return this.userService.getPlayers(queryObj, filterObj);
+  }
+
+  @Get(':playerId')
+  getPlayer(@Param() params: IUserParams) {
+    return this.userService.getPlayer(params.playerId);
   }
 }

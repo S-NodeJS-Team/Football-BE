@@ -8,8 +8,8 @@ import { updateUserDto } from './dto/updateUser.dto';
 import { USER_MSG } from 'src/common/constant';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
-import { IQueryObject } from 'src/common/interface';
 import { createQueryObject } from 'src/common/utils/paginate-document.util';
+import { IUserFilter, IUserQuery } from './interface/user-query.interface';
 
 @Injectable({})
 export class UserService {
@@ -32,7 +32,7 @@ export class UserService {
         code: HttpStatus.OK,
         message: USER_MSG.updateUserSuccess,
         data: {
-          user: newUser,
+          player: newUser,
         },
       };
     } catch (error) {
@@ -40,14 +40,21 @@ export class UserService {
     }
   }
 
-  async getPlayers(queryObj: IQueryObject) {
+  async getPlayers(queryObj: IUserQuery, filterObj: IUserFilter) {
     try {
       const { fields, queryObject, queryOptions, sort } =
         createQueryObject(queryObj);
-      const condition = {
+
+      const condition: any = {
         ...queryObject,
         is_verified: true,
       };
+
+      if (filterObj.positions) {
+        condition.position = {
+          hasSome: filterObj.positions,
+        };
+      }
 
       const { skip, take } = queryOptions;
       const players = await this.prisma.user.findMany({
@@ -70,6 +77,28 @@ export class UserService {
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async getPlayer(playerId: string) {
+    try {
+      const currPlayer = await this.prisma.user.findFirst({
+        where: {
+          id: playerId,
+          is_verified: true,
+        },
+      });
+
+      const { password, role, is_verified, ...result } = currPlayer;
+
+      return {
+        code: HttpStatus.OK,
+        data: {
+          player: result,
+        },
+      };
+    } catch (error) {
+      throw new InternalServerErrorException();
     }
   }
 }
