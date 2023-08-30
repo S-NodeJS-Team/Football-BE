@@ -21,11 +21,12 @@ model User {
   rating        String?
   role          Int?
   position      String[]
-  teamId        String?
   tournamentIds String[]
   is_verified   Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  teamIDs       String[] @db.ObjectId
+  teams         Team[]   @relation(fields: [teamIDs], references: [id])
 }
 
 type Skill {
@@ -36,13 +37,16 @@ type Skill {
 
 model Team {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
+  name          String   @unique
   description   String?
   galleryImages String[]
   logo          String?
   matchIds      String[]
+  slug          String   @unique
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  memberIDs     String[] @db.ObjectId
+  members       User[]   @relation(fields: [memberIDs], references: [id])
 }
 
 model Match {
@@ -54,6 +58,8 @@ model Match {
   awayTeamId   String
   type         Int
   result       String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Tournament {
@@ -62,20 +68,26 @@ model Tournament {
   startDate DateTime
   endDate   DateTime
   status    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OtpCode {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  otp      String
-  expireIn DateTime
-  userId   String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  otp       String
+  expireIn  DateTime
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Gallery {
-  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   imageLink    String
   resourceType Int
   resourceId   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model VerifyLink {
