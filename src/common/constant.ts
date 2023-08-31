@@ -31,7 +31,7 @@ export const USER_MSG = {
 };
 
 export const TEAM_MSG = {
-  notFoundTeam: 'Your team id not found',
+  notFoundTeam: 'Your team not found',
   addTeamSuccess: 'Your team has been added',
   updateTeamSuccess: 'Your team has been updated',
   getTeamSuccess: 'Get team successfully',

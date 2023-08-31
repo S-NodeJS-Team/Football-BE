@@ -22,36 +22,4 @@ export class AuthDto {
   @IsString()
   @IsOptional()
   phoneNumber: string;
-
-  @IsString()
-  @IsOptional()
-  avatar: string;
-
-  @IsString()
-  @IsOptional()
-  skills: string;
-
-  @IsString()
-  @IsOptional()
-  rating: string;
-
-  @IsInt()
-  @IsOptional()
-  role: number;
-
-  @IsString()
-  @IsOptional()
-  position: Int32Array;
-
-  @IsString()
-  @IsOptional()
-  teamId: string;
-
-  @IsString()
-  @IsOptional()
-  tournamentIds: object;
-
-  @IsBoolean()
-  @IsOptional()
-  isVerified: boolean;
 }

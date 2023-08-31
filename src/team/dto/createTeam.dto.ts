@@ -16,4 +16,5 @@ export class CreateTeamDto {
   @IsOptional()
   @IsString()
   logo: string;
+  
 }
