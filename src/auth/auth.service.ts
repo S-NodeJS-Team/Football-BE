@@ -66,10 +66,8 @@ export class AuthService {
       if (!checkUserExist) {
         const user = await this.prisma.user.create({
           data: {
-            email: dto.email,
-            password: pwdHash,
-            name: dto.name,
-            phoneNumber: dto.phoneNumber,
+            ...dto,
+            password: pwdHash
           },
         });
 

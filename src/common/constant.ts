@@ -30,6 +30,13 @@ export const USER_MSG = {
   updateUserSuccess: 'Update user successfully',
 };
 
+export const TEAM_MSG = {
+  notFoundTeam: 'Your team not found',
+  addTeamSuccess: 'Your team has been added',
+  updateTeamSuccess: 'Your team has been updated',
+  getTeamSuccess: 'Get team successfully',
+};
+
 export const END_POINT = {
   resetPassword: '/auth/reset-password',
 };
